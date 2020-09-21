@@ -32,8 +32,15 @@ interface ICompany {
   bs: string;
 }
 
+interface IUserData {
+  users: User;
+  contacts: Contact;
+  companies: Company;
+  address: Address;
+}
+
 class CreateUsersService {
-  public async execute(data: IUsers[]): Promise<IUsers[]> {
+  public async execute(data: IUsers[]): Promise<IUserData[]> {
     const usersRepository = getRepository(User);
     const companiesRepository = getRepository(Company);
     const contactsRepository = getRepository(Contact);
@@ -45,7 +52,7 @@ class CreateUsersService {
       item => item.address.suite.includes('Suite') && usersWithSwite.push(item),
     );
 
-    usersWithSwite.map(async item => {
+    const results = usersWithSwite.map(async item => {
       const companies = companiesRepository.create({
         name: item.company.name,
         bs: item.company.bs,
@@ -57,7 +64,7 @@ class CreateUsersService {
       const users = usersRepository.create({
         name: item.name,
         username: item.username,
-        company_id: companies.id,
+        company: companies,
       });
 
       await usersRepository.save(users);
@@ -65,7 +72,7 @@ class CreateUsersService {
       const contacts = contactsRepository.create({
         email: item.email,
         phone: item.phone,
-        user_id: users.id,
+        user: users,
         website: item.website,
       });
 
@@ -76,14 +83,23 @@ class CreateUsersService {
         street: item.address.street,
         suite: item.address.street,
         zipcode: item.address.zipcode,
-        user_id: users.id,
+        user: users,
         geo: `${item.address.geo.lat} ${item.address.geo.lng}`,
       });
 
       await addressRepository.save(address);
+
+      return {
+        users,
+        contacts,
+        companies,
+        address,
+      };
     });
 
-    return usersWithSwite;
+    const users = Promise.all(results);
+
+    return users;
   }
 }
 
