@@ -3,14 +3,10 @@ import {
   Entity,
   Column,
   CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
 } from 'typeorm';
 
-import Company from './Company';
-
-@Entity('users')
-class User {
+@Entity('companies')
+class Company {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
@@ -18,14 +14,10 @@ class User {
   name: string;
 
   @Column()
-  company_id: number;
-
-  @ManyToOne(() => Company)
-  @JoinColumn({ name: 'company_id' })
-  company: Company;
+  catchPhrase: string;
 
   @Column()
-  username: string;
+  bs: string;
 
   @CreateDateColumn()
   created_at?: Date;
@@ -34,4 +26,4 @@ class User {
   updated_at?: Date;
 }
 
-export default User;
+export default Company;

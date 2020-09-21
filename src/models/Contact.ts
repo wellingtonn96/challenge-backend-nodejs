@@ -7,25 +7,28 @@ import {
   JoinColumn,
 } from 'typeorm';
 
-import Company from './Company';
+import User from './User';
 
-@Entity('users')
-class User {
+@Entity('contacts')
+class Contact {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
   @Column()
-  name: string;
+  user_id: number;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
   @Column()
-  company_id: number;
-
-  @ManyToOne(() => Company)
-  @JoinColumn({ name: 'company_id' })
-  company: Company;
+  email: string;
 
   @Column()
-  username: string;
+  phone: string;
+
+  @Column()
+  website: string;
 
   @CreateDateColumn()
   created_at?: Date;
@@ -34,4 +37,4 @@ class User {
   updated_at?: Date;
 }
 
-export default User;
+export default Contact;
