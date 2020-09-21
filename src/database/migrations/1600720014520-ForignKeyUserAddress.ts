@@ -5,24 +5,23 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-export class AddingRelationCategoryAndProduct1596720996433
-  implements MigrationInterface {
+export class ForignKeyUserAddress1600720014520 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.addColumn(
-      'users',
+      'address',
       new TableColumn({
-        name: 'company_id',
+        name: 'user_id',
         type: 'int',
       }),
     );
 
     await queryRunner.createForeignKey(
-      'users',
+      'address',
       new TableForeignKey({
-        name: 'UsersCompanies',
-        columnNames: ['company_id'],
+        name: 'AddressUsers',
+        columnNames: ['user_id'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'companies',
+        referencedTableName: 'users',
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       }),
@@ -30,7 +29,7 @@ export class AddingRelationCategoryAndProduct1596720996433
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropForeignKey('users', 'UsersCompanies');
-    await queryRunner.dropColumn('users', 'company_id');
+    await queryRunner.dropForeignKey('address', 'AddressUsers');
+    await queryRunner.dropColumn('address', 'user_id');
   }
 }

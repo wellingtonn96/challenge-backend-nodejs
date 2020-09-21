@@ -17,7 +17,7 @@ usersRouter.get('/save', async (request, response) => {
 
   const createUsers = new CreateUsersService();
 
-  const results = createUsers.execute(data);
+  const results = await createUsers.execute(data);
 
   return response.json(results);
 });

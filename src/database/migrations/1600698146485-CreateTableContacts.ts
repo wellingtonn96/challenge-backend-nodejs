@@ -1,9 +1,4 @@
-import {
-  MigrationInterface,
-  QueryRunner,
-  Table,
-  TableForeignKey,
-} from 'typeorm';
+import { MigrationInterface, QueryRunner, Table } from 'typeorm';
 
 export class CreateTableContacts1600698146485 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -16,10 +11,7 @@ export class CreateTableContacts1600698146485 implements MigrationInterface {
             type: 'int',
             isPrimary: true,
             generationStrategy: 'increment',
-          },
-          {
-            name: 'user_id',
-            type: 'int',
+            isGenerated: true,
           },
           {
             name: 'email',
@@ -46,22 +38,9 @@ export class CreateTableContacts1600698146485 implements MigrationInterface {
         ],
       }),
     );
-
-    await queryRunner.createForeignKey(
-      'contacts',
-      new TableForeignKey({
-        name: 'ContactsUsers',
-        columnNames: ['user_id'],
-        referencedColumnNames: ['id'],
-        referencedTableName: 'users',
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
-      }),
-    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropForeignKey('contacts', 'ContactsUsers');
     await queryRunner.dropTable('contacts');
   }
 }

@@ -11,6 +11,7 @@ export class CreateTableCompanies1600696506770 implements MigrationInterface {
             type: 'int',
             isPrimary: true,
             generationStrategy: 'increment',
+            isGenerated: true,
           },
           {
             name: 'name',
