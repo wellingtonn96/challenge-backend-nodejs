@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import axios from 'axios';
+
 import CreateUsersService from '../services/CreateUsersService';
 
 const usersRouter = Router();
