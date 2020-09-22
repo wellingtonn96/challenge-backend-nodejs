@@ -28,4 +28,4 @@ This app using all the latest features, tools and practices in web development!
 
 ### Testing the application
 
-1. Test the application with the command `cd yarn test/`
+1. Test the application with the command `yarn test/`
