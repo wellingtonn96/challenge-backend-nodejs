@@ -16,10 +16,10 @@ This app using all the latest features, tools and practices in web development!
 
 ### Getting started with the backend server
 
-1. Move yourself to the server folder: `cd src/`
-2. Create the database in the mysql
-3. Configure the database in the `ormconfig.json` file
-4. Run migrations with the command `yarn typeorm migration:run`
+1. Create the database in the mysql
+2. Configure the database in the `ormconfig.json` file
+3. Run migrations with the command `yarn typeorm migration:run`
+4. Move yourself to the server folder: `cd src/`
 5. Run `yarn dev:server` to start the server
 
 ### See the documentation
