@@ -28,7 +28,7 @@ export const documentation = {
         summary: 'Baixar usuários da api externa',
         responses: {
           '200': {
-            description: 'Todos usuários da api',
+            description: 'Rota para baixar usuários da api externa',
           },
         },
       },
@@ -39,7 +39,8 @@ export const documentation = {
         summary: 'Salvar todos usuários no banco de dados',
         responses: {
           '200': {
-            description: 'Usuários cadastrados no banco de dados',
+            description:
+              'Rota para cadastrar todos os usuários da api no banco de dados',
           },
         },
       },
