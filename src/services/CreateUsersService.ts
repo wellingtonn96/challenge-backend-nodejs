@@ -81,7 +81,7 @@ class CreateUsersService {
       const address = addressRepository.create({
         city: item.address.city,
         street: item.address.street,
-        suite: item.address.street,
+        suite: item.address.suite,
         zipcode: item.address.zipcode,
         user: users,
         geo: `${item.address.geo.lat} ${item.address.geo.lng}`,

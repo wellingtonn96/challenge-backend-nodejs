@@ -1,240 +1,71 @@
-// import request from 'supertest';
-// import path from 'path';
-// import { Connection, getRepository, getConnection } from 'typeorm';
-// import createConnection from '../database';
+import request from 'supertest';
+import { Connection, getConnection, getRepository } from 'typeorm';
+import createConnection from '../database';
 
-// import Transaction from '../models/Transaction';
-// import Category from '../models/Category';
+import User from '../models/User';
 
-// import app from '../app';
+import app from '../app';
+import Company from '../models/Company';
+import Contact from '../models/Contact';
+import Address from '../models/Address';
 
-// let connection: Connection;
+let connection: Connection;
 
-// describe('Transaction', () => {
-//   beforeAll(async () => {
-//     connection = await createConnection('test-connection');
+describe('Users', () => {
+  beforeAll(async () => {
+    connection = await createConnection('test-connection');
 
-//     await connection.query('DROP TABLE IF EXISTS transactions');
-//     await connection.query('DROP TABLE IF EXISTS categories');
-//     await connection.query('DROP TABLE IF EXISTS migrations');
+    await connection.runMigrations();
+  });
 
-//     await connection.runMigrations();
-//   });
+  afterAll(async () => {
+    const mainConnection = getConnection();
 
-//   beforeEach(async () => {
-//     await connection.query('DELETE FROM transactions');
-//     await connection.query('DELETE FROM categories');
-//   });
+    await connection.undoLastMigration();
+    await connection.undoLastMigration();
+    await connection.undoLastMigration();
+    await connection.undoLastMigration();
+    await connection.undoLastMigration();
+    await connection.undoLastMigration();
+    await connection.undoLastMigration();
 
-//   afterAll(async () => {
-//     const mainConnection = getConnection();
+    await connection.close();
+    await mainConnection.close();
+  });
 
-//     await connection.close();
-//     await mainConnection.close();
-//   });
+  it('should be able to list users of api', async () => {
+    const response = await request(app).get('/users/download');
 
-//   it('should be able to list transactions', async () => {
-//     await request(app).post('/transactions').send({
-//       title: 'March Salary',
-//       type: 'income',
-//       value: 4000,
-//       category: 'Salary',
-//     });
+    expect(response.body.length === 10).toBeTruthy();
+  });
 
-//     await request(app).post('/transactions').send({
-//       title: 'April Salary',
-//       type: 'income',
-//       value: 4000,
-//       category: 'Salary',
-//     });
+  it('should be able to create users of api in the database', async () => {
+    const userRepository = getRepository(User);
+    const compainesRepository = getRepository(Company);
+    const contactsRepository = getRepository(Contact);
+    const addressRepository = getRepository(Address);
 
-//     await request(app).post('/transactions').send({
-//       title: 'Macbook',
-//       type: 'outcome',
-//       value: 6000,
-//       category: 'Eletronics',
-//     });
+    await request(app).get('/users/save');
 
-//     const response = await request(app).get('/transactions');
+    const users = await userRepository.findOne();
+    const companies = await compainesRepository.findOne();
+    const contacts = await contactsRepository.findOne();
+    const address = await addressRepository.findOne();
 
-//     expect(response.body.transactions).toHaveLength(3);
-//     expect(response.body.balance).toMatchObject({
-//       income: 8000,
-//       outcome: 6000,
-//       total: 2000,
-//     });
-//   });
+    expect(users).toBeTruthy();
+    expect(companies).toBeTruthy();
+    expect(contacts).toBeTruthy();
+    expect(address).toBeTruthy();
+  });
 
-//   it('should be able to create new transaction', async () => {
-//     const transactionsRepository = getRepository(Transaction);
+  it('should not be able to create user users staying in apartments', async () => {
+    const addressRepository = getRepository(Address);
 
-//     const response = await request(app).post('/transactions').send({
-//       title: 'March Salary',
-//       type: 'income',
-//       value: 4000,
-//       category: 'Salary',
-//     });
+    await request(app).get('/users/save');
 
-//     const transaction = await transactionsRepository.findOne({
-//       where: {
-//         title: 'March Salary',
-//       },
-//     });
+    const address = await addressRepository.find();
+    const results = address.map(item => item.suite.includes('Apt.'));
 
-//     expect(transaction).toBeTruthy();
-
-//     expect(response.body).toMatchObject(
-//       expect.objectContaining({
-//         id: expect.any(String),
-//       }),
-//     );
-//   });
-
-//   it('should create tags when inserting new transactions', async () => {
-//     const transactionsRepository = getRepository(Transaction);
-//     const categoriesRepository = getRepository(Category);
-
-//     const response = await request(app).post('/transactions').send({
-//       title: 'March Salary',
-//       type: 'income',
-//       value: 4000,
-//       category: 'Salary',
-//     });
-
-//     const category = await categoriesRepository.findOne({
-//       where: {
-//         title: 'Salary',
-//       },
-//     });
-
-//     expect(category).toBeTruthy();
-
-//     const transaction = await transactionsRepository.findOne({
-//       where: {
-//         title: 'March Salary',
-//         category_id: category?.id,
-//       },
-//     });
-
-//     expect(transaction).toBeTruthy();
-
-//     expect(response.body).toMatchObject(
-//       expect.objectContaining({
-//         id: expect.any(String),
-//       }),
-//     );
-//   });
-
-//   it('should not create tags when they already exists', async () => {
-//     const transactionsRepository = getRepository(Transaction);
-//     const categoriesRepository = getRepository(Category);
-
-//     const { identifiers } = await categoriesRepository.insert({
-//       title: 'Salary',
-//     });
-
-//     const insertedCategoryId = identifiers[0].id;
-
-//     await request(app).post('/transactions').send({
-//       title: 'March Salary',
-//       type: 'income',
-//       value: 4000,
-//       category: 'Salary',
-//     });
-
-//     const transaction = await transactionsRepository.findOne({
-//       where: {
-//         title: 'March Salary',
-//         category_id: insertedCategoryId,
-//       },
-//     });
-
-//     const categoriesCount = await categoriesRepository.find();
-
-//     expect(categoriesCount).toHaveLength(1);
-//     expect(transaction).toBeTruthy();
-//   });
-
-//   it('should not be able to create outcome transaction without a valid balance', async () => {
-//     await request(app).post('/transactions').send({
-//       title: 'March Salary',
-//       type: 'income',
-//       value: 4000,
-//       category: 'Salary',
-//     });
-
-//     const response = await request(app).post('/transactions').send({
-//       title: 'iPhone',
-//       type: 'outcome',
-//       value: 4500,
-//       category: 'Eletronics',
-//     });
-
-//     expect(response.status).toBe(400);
-//     expect(response.body).toMatchObject(
-//       expect.objectContaining({
-//         status: 'error',
-//         message: expect.any(String),
-//       }),
-//     );
-//   });
-
-//   it('should be able to delete a transaction', async () => {
-//     const transactionsRepository = getRepository(Transaction);
-
-//     const response = await request(app).post('/transactions').send({
-//       title: 'March Salary',
-//       type: 'income',
-//       value: 4000,
-//       category: 'Salary',
-//     });
-
-//     await request(app).delete(`/transactions/${response.body.id}`);
-
-//     const transaction = await transactionsRepository.findOne(response.body.id);
-
-//     expect(transaction).toBeFalsy();
-//   });
-
-//   it('should be able to import transactions', async () => {
-//     const transactionsRepository = getRepository(Transaction);
-//     const categoriesRepository = getRepository(Category);
-
-//     const importCSV = path.resolve(__dirname, 'import_template.csv');
-
-//     await request(app).post('/transactions/import').attach('file', importCSV);
-
-//     const transactions = await transactionsRepository.find();
-//     const categories = await categoriesRepository.find();
-
-//     expect(categories).toHaveLength(2);
-//     expect(categories).toEqual(
-//       expect.arrayContaining([
-//         expect.objectContaining({
-//           title: 'Others',
-//         }),
-//         expect.objectContaining({
-//           title: 'Food',
-//         }),
-//       ]),
-//     );
-
-//     expect(transactions).toHaveLength(3);
-//     expect(transactions).toEqual(
-//       expect.arrayContaining([
-//         expect.objectContaining({
-//           title: 'Loan',
-//           type: 'income',
-//         }),
-//         expect.objectContaining({
-//           title: 'Website Hosting',
-//           type: 'outcome',
-//         }),
-//         expect.objectContaining({
-//           title: 'Ice cream',
-//           type: 'outcome',
-//         }),
-//       ]),
-//     );
-//   });
-// });
+    expect(results).not.toContain(true);
+  });
+});
